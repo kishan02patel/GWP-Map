@@ -1,15 +1,23 @@
 path:hover {
 	stroke: white;
 	stroke-width: 3px;
-	stroke-linejoin: round;
 	fill: #BF0A30;
 	cursor: pointer;
 }
 
+.Canvas:hover{
+	stroke: black !important ;
+	stroke-width: 2px !important ;
+	fill: #000;
+	cursor: default;
+}
+
 path {
-	fill: none;
-	stroke: steelblue;
-	stroke-width: 1.5px;
+	stroke: black;
+	stroke-width: 2px;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	fill-opacity: 0.8;
 }
 
 #info-box {
