@@ -1,0 +1,27 @@
+path:hover {
+	stroke: white;
+	stroke-width: 3px;
+	stroke-linejoin: round;
+	fill: #BF0A30;
+	cursor: pointer;
+}
+
+path {
+	fill: none;
+	stroke: steelblue;
+	stroke-width: 1.5px;
+}
+
+#info-box {
+	display: none;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 999;
+	background-color: #000;
+	border: 2px solid white;
+	color: white;
+	border-radius: 5px;
+	padding: 5px;
+	font-family: arial;
+}
