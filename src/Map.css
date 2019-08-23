@@ -19,3 +19,7 @@ path {
 	stroke-linejoin: round;
 	fill-opacity: 0.8;
 }
+
+#mapDiv {
+	overflow: auto
+}

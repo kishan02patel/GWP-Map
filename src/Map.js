@@ -15,6 +15,10 @@ class Map extends React.Component {
 		}
 	}
 
+	scaleMap(x, y) {
+		this.svg.attr('transform', `scale(${x},${y})`)
+	}
+
 	componentDidMount() {
 		const data = {
 			// Canvas
@@ -245,6 +249,7 @@ class Map extends React.Component {
 
 		// Create a new layer for heatmap
 		this.heatmapLayer = this.svg.append('g');
+		setInterval(() => this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000)), 2000)
 	}
 
 	init_map = (dataPoints) => {
@@ -312,6 +317,7 @@ class Map extends React.Component {
 	}
 
 	heatmap(locationData, startTime, endTime) {
+		this.heatmapLayer.selectAll('*').remove()
 		const heatpoints = [];
 		heatpoints.push(locationData.forEach(p => {
 			if (p.timestamp > startTime && p.timestamp < endTime)
@@ -331,7 +337,7 @@ class Map extends React.Component {
 		return (
 			<React.Fragment>
 				<h1>GWP Map</h1>
-				<div ref={this.drawing}></div>
+				<div ref={this.drawing} id="mapDiv"></div>
 			</React.Fragment>
 		);
 	}
