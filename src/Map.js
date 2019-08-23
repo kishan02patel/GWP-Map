@@ -8,6 +8,11 @@ class Map extends React.Component {
 		this.drawing = React.createRef();
 		this.SVG_HEIGHT = this.props.height || 376;
 		this.SVG_WIDTH = this.props.width || 575;
+		this.MARKER_RADIUS = this.props.markerRadius || 5;
+		this.MARKER_COLOR = this.props.markerColor || '#FFF';
+		this.state = {
+			locationData: []
+		}
 	}
 
 	componentDidMount() {
@@ -236,7 +241,10 @@ class Map extends React.Component {
 			}
 		}
 		this.init_map(this.props.data || data);
-		this.locationData = this.randomData();
+		this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000))
+
+		// Create a new layer for heatmap
+		this.heatmapLayer = this.svg.append('g');
 	}
 
 	init_map = (dataPoints) => {
@@ -301,6 +309,22 @@ class Map extends React.Component {
 			locationData.push(newData);
 		}
 		return locationData;
+	}
+
+	heatmap(locationData, startTime, endTime) {
+		const heatpoints = [];
+		heatpoints.push(locationData.forEach(p => {
+			if (p.timestamp > startTime && p.timestamp < endTime)
+				return this.addPersonToHeatmap(p)
+		}))
+	}
+
+	addPersonToHeatmap(location) {
+		return this.heatmapLayer.append('circle')
+			.attr('r', this.MARKER_RADIUS)
+			.attr('cx', location.x)
+			.attr('cy', location.y)
+			.style('fill', this.MARKER_COLOR)
 	}
 
 	render() {
