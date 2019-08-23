@@ -259,18 +259,34 @@ class Map extends React.Component {
 		*/
 
 		//This is the accessor function we talked about above
-		var lineFunction = d3.line()
+		let lineFunction = d3.line()
 			.x(function (d) { return d.x; })
 			.y(function (d) { return d.y; })
 		// .interpolate("linear");
 
-		for (var key in dataPoints) {
-			this.svg.append("path")
-				.attr("d", lineFunction(dataPoints[key].points))
-				.attr("fill", dataPoints[key].color)
-				.attr("class", dataPoints[key].info);
-		}
+		let tooltip = d3.select("body")
+			.append("div")
+			.style("position", "absolute")
+			.style("z-index", "10")
+			.style("color", "#FFF")
+			.style("background", "#000")
+			.style("border", "2px solid white")
+			.style("border-radius", "5px")
+			.style("padding", "5px")
+			.style("visibility", "hidden")
 
+
+		for (var key in dataPoints) {
+			let data = dataPoints[key];
+
+			this.svg.append("path")
+				.attr("d", lineFunction(data.points))
+				.attr("fill", data.color)
+				.attr("class", data.info)
+				.on("mouseover", () => tooltip.style("visibility", "visible").text(data.info))
+				.on("mousemove", () => tooltip.style("top", (d3.event.pageY - 30) + "px").style("left", (d3.event.pageX + 10) + "px"))
+				.on("mouseout", () => tooltip.style("visibility", "hidden"));
+		}
 	}
 
 	randomData(numberOfData = 100) {
@@ -291,7 +307,6 @@ class Map extends React.Component {
 		return (
 			<React.Fragment>
 				<h1>GWP Map</h1>
-				<div id="info-box"></div>
 				<div ref={this.drawing}></div>
 			</React.Fragment>
 		);
