@@ -5,6 +5,26 @@ path:hover {
 	cursor: pointer;
 }
 
+.person:hover, #triangle:hover {
+	stroke: steelblue;
+	stroke-width: 3px;
+	fill: none;
+	cursor: pointer;
+}
+
+.person {
+	stroke: white;
+	stroke-dasharray: 5;
+	stroke-dashoffset: 50;	
+	animation: dash 5s ease 5s infinite;
+}
+
+@keyframes dash {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
 .Canvas:hover{
 	stroke: black !important ;
 	stroke-width: 2px !important ;
@@ -21,5 +41,16 @@ path {
 }
 
 #mapDiv {
-	overflow: auto
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+	height: 100vh;
+	width: 100vw;
+	text-align: center
+}
+
+svg {
+	position: absolute;
+	top: 0;
+	left: 0;
 }

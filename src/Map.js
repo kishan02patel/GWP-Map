@@ -15,8 +15,65 @@ class Map extends React.Component {
 		}
 	}
 
-	scaleMap(x, y) {
-		this.svg.attr('transform', `scale(${x},${y})`)
+	scaleMap(x, y, transform = 'top left') {
+		this.svg.attr('transform', `scale(${x},${y})`).attr('transform-origin', transform)
+	}
+
+	addUtilitiesForMap() {
+
+		// Tooltip that is shown when hovered above an area
+		this.tooltip = d3.select("body")
+			.append("div")
+			.style("position", "absolute")
+			.style("z-index", "10")
+			.style("color", "#FFF")
+			.style("background", "#000")
+			.style("border", "2px solid white")
+			.style("border-radius", "5px")
+			.style("padding", "5px")
+			.style("visibility", "hidden")
+
+		// Arrow in the user location tracking path 
+		this.svg.append("svg:defs").append("svg:marker")
+			.attr("id", "triangle")
+			.attr("refX", 6)
+			.attr("refY", 6)
+			.attr("markerWidth", 30)
+			.attr("markerHeight", 30)
+			.attr("markerUnits", "userSpaceOnUse")
+			.attr("orient", "auto")
+			.append("path")
+			.attr("d", "M 0 0 12 6 0 12 3 6")
+			.style("fill", "black");
+
+		// Circle in the user location tracking path (The starting point)
+		this.svg.append("svg:defs").append("svg:marker")
+			.attr("id", "circleStart")
+			.attr("refX", 0)
+			.attr("refY", 0)
+			.attr("markerWidth", 5)
+			.attr("markerHeight", 5)
+			.attr("markerUnits", "strokeWidth")
+			.attr("orient", "auto")
+			.attr("viewBox", "-6 -6 12 12")
+			.append("path")
+			.attr("d", "M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0")
+			.style("fill", "black");
+
+		// Circle in the user location tracking path (The ending point)
+		this.svg.append("svg:defs").append("svg:marker")
+			.attr("id", "circleEnd")
+			.attr("refX", 0)
+			.attr("refY", 0)
+			.attr("markerWidth", 5)
+			.attr("markerHeight", 5)
+			.attr("markerUnits", "strokeWidth")
+			.attr("orient", "auto")
+			.attr("viewBox", "-6 -6 12 12")
+			.append("path")
+			.attr("d", "M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0")
+			.style("fill", "steelblue");
+
 	}
 
 	componentDidMount() {
@@ -245,11 +302,21 @@ class Map extends React.Component {
 			}
 		}
 		this.init_map(this.props.data || data);
-		this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000))
+		this.addUtilitiesForMap();
+
+		// Find the scaling amount based on the parent div's height and width
+		const xScale = document.getElementById("mapDiv").getBoundingClientRect().width / this.SVG_WIDTH;
+		const yScale = document.getElementById("mapDiv").getBoundingClientRect().height / this.SVG_HEIGHT;
+		this.scaleMap(xScale.toFixed(2), yScale.toFixed(2));
+
+		// this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000))
 
 		// Create a new layer for heatmap
 		this.heatmapLayer = this.svg.append('g');
-		setInterval(() => this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000)), 2000)
+
+		// setInterval(() => this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000)), 2000)
+
+		this.mapUser()
 	}
 
 	init_map = (dataPoints) => {
@@ -271,23 +338,10 @@ class Map extends React.Component {
 			this.svg.append('path').attr('d', newPath);
 		*/
 
-		//This is the accessor function we talked about above
 		let lineFunction = d3.line()
 			.x(function (d) { return d.x; })
 			.y(function (d) { return d.y; })
 		// .interpolate("linear");
-
-		let tooltip = d3.select("body")
-			.append("div")
-			.style("position", "absolute")
-			.style("z-index", "10")
-			.style("color", "#FFF")
-			.style("background", "#000")
-			.style("border", "2px solid white")
-			.style("border-radius", "5px")
-			.style("padding", "5px")
-			.style("visibility", "hidden")
-
 
 		for (var key in dataPoints) {
 			let data = dataPoints[key];
@@ -296,9 +350,9 @@ class Map extends React.Component {
 				.attr("d", lineFunction(data.points))
 				.attr("fill", data.color)
 				.attr("class", data.info)
-				.on("mouseover", () => tooltip.style("visibility", "visible").text(data.info))
-				.on("mousemove", () => tooltip.style("top", (d3.event.pageY - 30) + "px").style("left", (d3.event.pageX + 10) + "px"))
-				.on("mouseout", () => tooltip.style("visibility", "hidden"));
+				.on("mouseover", () => this.tooltip.style("visibility", "visible").text(data.info))
+				.on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 30) + "px").style("left", (d3.event.pageX + 10) + "px"))
+				.on("mouseout", () => this.tooltip.style("visibility", "hidden"));
 		}
 	}
 
@@ -333,10 +387,28 @@ class Map extends React.Component {
 			.style('fill', this.MARKER_COLOR)
 	}
 
+	mapUser(data) {
+
+		var lineFunction = d3.line()
+			.x(function (d) { return d.x; })
+			.y(function (d) { return d.y; })
+
+		this.svg.append("path")
+			.attr("d", lineFunction([{ "x": 50, "y": 100 }, { "x": 150, "y": 150 }, { "x": 280, "y": 300 }, { "x": 10, "y": 10 }]))
+			.attr("fill", 'none')
+			.attr("class", 'person')
+			.on("mouseover", () => this.tooltip.style("visibility", "visible").text('kishan'))
+			.on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 30) + "px").style("left", (d3.event.pageX + 10) + "px"))
+			.on("mouseout", () => this.tooltip.style("visibility", "hidden"))
+			.attr("marker-mid", "url(#triangle)")
+			.attr('marker-start', "url(#circleStart)")
+			.attr('marker-end', "url(#circleEnd)")
+	}
+
 	render() {
 		return (
 			<React.Fragment>
-				<h1>GWP Map</h1>
+				{/* <h1>GWP Map</h1> */}
 				<div ref={this.drawing} id="mapDiv"></div>
 			</React.Fragment>
 		);
