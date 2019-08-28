@@ -1,28 +1,63 @@
+path {
+	stroke: black;
+	stroke-width: 2px;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	fill-opacity: 0.9;
+}
+
 path:hover {
 	stroke: white;
-	stroke-width: 3px;
-	fill: #BF0A30;
+	stroke-width: 2px;
+	fill: steelblue;
 	cursor: pointer;
 }
 
-.person:hover, #triangle:hover {
+.person:hover{
 	stroke: steelblue;
-	stroke-width: 3px;
+	stroke-width: 2px;
 	fill: none;
 	cursor: pointer;
 }
 
-.person {
+.person{
 	stroke: white;
 	stroke-dasharray: 5;
-	stroke-dashoffset: 50;	
-	animation: dash 5s ease 5s infinite;
+	stroke-dashoffset: 10;	
+	animation: dash 5s linear 1s forwards;
 }
 
 @keyframes dash {
+	from {
+		stroke-dashoffset: 100; /*1000*/
+	}
 	to {
 		stroke-dashoffset: 0;
 	}
+}
+
+#circleEnd {
+	stroke-dasharray: 5;
+	stroke-dashoffset: 10;	
+	animation: circleAnimation 1s linear infinite;
+}
+
+@keyframes circleAnimation {
+	from{
+		stroke-dashoffset: 10;
+		stroke-width: 3px;
+	}
+	to {
+		stroke-dashoffset: 0;
+		stroke-width: 5px;
+	}
+}
+
+#triangle, #circleStart {
+	stroke-dasharray: 100;
+	stroke-dashoffset: 100;
+	stroke-width: 0;
+	animation: none;
 }
 
 .Canvas:hover{
@@ -30,14 +65,6 @@ path:hover {
 	stroke-width: 2px !important ;
 	fill: #000;
 	cursor: default;
-}
-
-path {
-	stroke: black;
-	stroke-width: 2px;
-	stroke-linecap: round;
-	stroke-linejoin: round;
-	fill-opacity: 0.8;
 }
 
 #mapDiv {
@@ -53,4 +80,15 @@ svg {
 	position: absolute;
 	top: 0;
 	left: 0;
+}
+
+.tooltip {
+	position: absolute;
+	z-index:0;
+	color:#FFF;
+	background:#000;
+	border:2px solid white;
+	border-radius:5px;
+	padding:5px;
+	visibility:hidden;
 }

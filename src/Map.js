@@ -11,12 +11,13 @@ class Map extends React.Component {
 		this.MARKER_RADIUS = this.props.markerRadius || 5;
 		this.MARKER_COLOR = this.props.markerColor || '#FFF';
 		this.state = {
-			locationData: []
+			locationData: [],
+			userTrackingData: {},
 		}
 	}
 
 	scaleMap(x, y, transform = 'top left') {
-		this.svg.attr('transform', `scale(${x},${y})`).attr('transform-origin', transform)
+		this.svg.attr('transform', `scale(${x},${y})`).attr('transform-origin', transform);
 	}
 
 	addUtilitiesForMap() {
@@ -24,14 +25,7 @@ class Map extends React.Component {
 		// Tooltip that is shown when hovered above an area
 		this.tooltip = d3.select("body")
 			.append("div")
-			.style("position", "absolute")
-			.style("z-index", "10")
-			.style("color", "#FFF")
-			.style("background", "#000")
-			.style("border", "2px solid white")
-			.style("border-radius", "5px")
-			.style("padding", "5px")
-			.style("visibility", "hidden")
+			.attr("class", "tooltip")
 
 		// Arrow in the user location tracking path 
 		this.svg.append("svg:defs").append("svg:marker")
@@ -72,11 +66,17 @@ class Map extends React.Component {
 			.attr("viewBox", "-6 -6 12 12")
 			.append("path")
 			.attr("d", "M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0")
-			.style("fill", "steelblue");
+			.style("fill", "black")
+			.style("stroke", "white");
+
+		this.lineFunction = d3.line()
+			.x(function (d) { return d.x; })
+			.y(function (d) { return d.y; })
 
 	}
 
 	componentDidMount() {
+		// Map data points.
 		const data = {
 			// Canvas
 			path0: {
@@ -312,31 +312,22 @@ class Map extends React.Component {
 		// this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000))
 
 		// Create a new layer for heatmap
-		this.heatmapLayer = this.svg.append('g');
+		//this.heatmapLayer = this.svg.append('g');
+
+		// Create a new layer for user tracking
+		this.userTrackingLayer = this.svg.append('g');
 
 		// setInterval(() => this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000)), 2000)
 
-		this.mapUser()
+		this.trackUser({ id: 123, location: [{ "x": 50, "y": 100 }, { "x": 150, "y": 150 }, { "x": 280, "y": 300 }, { "x": 10, "y": 10 }], name: 'Kishan' })
+		setTimeout(() => this.trackUser({ id: 123, location: [{ "x": 50, "y": 100 }, { "x": 150, "y": 150 }, { "x": 280, "y": 300 }, { "x": 10, "y": 10 }, { "x": 250, "y": 112 }], name: 'Kishan' }), 2000)
 	}
 
-	init_map = (dataPoints) => {
+	init_map(dataPoints) {
 
 		this.svg = d3.select(this.drawing.current).append('svg')
 			.attr('height', this.SVG_HEIGHT)
 			.attr('width', this.SVG_WIDTH);
-
-		/* 
-			** ALternative way to create a path
-			let newPath = d3.path();
-			newPath.moveTo(208.44, 158.49);
-			newPath.lineTo(208.44, 291.22);
-			newPath.lineTo(245.11, 298.59);
-			newPath.lineTo(266.36, 291.22);
-			newPath.lineTo(268.03, 157.28);
-			newPath.lineTo(208.44, 158.49);
-			newPath.closePath();
-			this.svg.append('path').attr('d', newPath);
-		*/
 
 		let lineFunction = d3.line()
 			.x(function (d) { return d.x; })
@@ -387,22 +378,44 @@ class Map extends React.Component {
 			.style('fill', this.MARKER_COLOR)
 	}
 
-	mapUser(data) {
-
-		var lineFunction = d3.line()
-			.x(function (d) { return d.x; })
-			.y(function (d) { return d.y; })
-
-		this.svg.append("path")
-			.attr("d", lineFunction([{ "x": 50, "y": 100 }, { "x": 150, "y": 150 }, { "x": 280, "y": 300 }, { "x": 10, "y": 10 }]))
+	addNewUserToTrack(userData) {
+		return this.userTrackingLayer.append("path")
+			.datum(userData.location)
+			.attr("d", this.lineFunction)
 			.attr("fill", 'none')
 			.attr("class", 'person')
-			.on("mouseover", () => this.tooltip.style("visibility", "visible").text('kishan'))
+			.on("mouseover", () => this.tooltip.style("visibility", "visible").text(userData.name || userData.id))
 			.on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 30) + "px").style("left", (d3.event.pageX + 10) + "px"))
 			.on("mouseout", () => this.tooltip.style("visibility", "hidden"))
 			.attr("marker-mid", "url(#triangle)")
 			.attr('marker-start', "url(#circleStart)")
-			.attr('marker-end', "url(#circleEnd)")
+			.attr('marker-end', "url(#circleEnd)");
+	}
+
+	trackUser(userData) {
+		// If the user does not exists then add it to map
+		if (this.state.userTrackingData[userData.id] === undefined) {
+			let newUser = {
+				id: userData.id,
+				location: userData.location,
+				name: userData.name,
+				hidden: false
+			}
+
+			newUser.trackingObj = this.addNewUserToTrack(newUser);
+
+			let newStateObj = Object.assign({}, this.state.userTrackingData);
+			newStateObj[userData.id] = newUser;
+
+			this.setState({ userTrackingData: Object.assign({}, newStateObj) });
+		} else {
+			// If user exists then add new locations.
+			this.state.userTrackingData[userData.id].trackingObj.datum(userData.location).transition().duration(1000).attr("d", this.lineFunction)
+
+			let newStateObj = Object.assign({}, this.state.userTrackingData);
+			newStateObj[userData.id].location = userData.location;
+			this.setState({ userTrackingData: Object.assign({}, newStateObj) });
+		}
 	}
 
 	render() {
