@@ -27,51 +27,44 @@ class Map extends React.Component {
 			.append("div")
 			.attr("class", "tooltip")
 
-		// Arrow in the user location tracking path 
-		this.svg.append("svg:defs").append("svg:marker")
-			.attr("id", "triangle")
-			.attr("refX", 6)
-			.attr("refY", 6)
-			.attr("markerWidth", 30)
-			.attr("markerHeight", 30)
-			.attr("markerUnits", "userSpaceOnUse")
-			.attr("orient", "auto")
-			.append("path")
-			.attr("d", "M 0 0 12 6 0 12 3 6")
-			.style("fill", "black");
-
-		// Circle in the user location tracking path (The starting point)
-		this.svg.append("svg:defs").append("svg:marker")
-			.attr("id", "circleStart")
-			.attr("refX", 0)
-			.attr("refY", 0)
-			.attr("markerWidth", 5)
-			.attr("markerHeight", 5)
-			.attr("markerUnits", "strokeWidth")
-			.attr("orient", "auto")
-			.attr("viewBox", "-6 -6 12 12")
-			.append("path")
-			.attr("d", "M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0")
-			.style("fill", "black");
-
-		// Circle in the user location tracking path (The ending point)
-		this.svg.append("svg:defs").append("svg:marker")
-			.attr("id", "circleEnd")
-			.attr("refX", 0)
-			.attr("refY", 0)
-			.attr("markerWidth", 5)
-			.attr("markerHeight", 5)
-			.attr("markerUnits", "strokeWidth")
-			.attr("orient", "auto")
-			.attr("viewBox", "-6 -6 12 12")
-			.append("path")
-			.attr("d", "M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0")
-			.style("fill", "black")
-			.style("stroke", "white");
-
 		this.lineFunction = d3.line()
 			.x(function (d) { return d.x; })
 			.y(function (d) { return d.y; })
+
+		this.createMapMarkers();
+	}
+
+	createMapMarkers() {
+		let data = [
+			{ id: 0, name: 'circle', path: 'M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0', viewbox: '-6 -6 12 12', refX: 0, refY: 6, height: 8, width: 8 },
+			{ id: 1, name: 'square', path: 'M 0,0 m -5,-5 L 5,-5 L 5,5 L -5,5 Z', viewbox: '-5 -5 10 10', refX: 0, refY: 6, height: 8, width: 8 },
+			{ id: 2, name: 'arrow', path: 'M2, 2 L10, 6 L2, 10 L6, 6 L2, 2', viewbox: '0 0 12 12', refX: 6, refY: 0, height: 12, width: 12 }
+		];
+
+		let color = d3.scaleOrdinal(d3.schemeCategory10);
+		let defs = this.svg.append('svg:defs');
+		let margin = { top: 50, right: 20, bottom: 30, left: 40 };
+
+		let paths = this.svg.append('svg:g')
+			.attr('id', 'markers')
+			.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+		let marker = defs.selectAll('marker')
+			.data(data)
+			.enter()
+			.append('svg:marker')
+			.attr('id', function (d) { return 'marker_' + d.name })
+			.attr('markerHeight', function (d) { return d.height })
+			.attr('markerWidth', function (d) { return d.width })
+			.attr('markerUnits', 'strokeWidth')
+			.attr('orient', 'auto')
+			.attr('class', function (d) { return d.name })
+			.attr('refX', function (d) { return d.refX })
+			.attr('refY', function (d) { return d.refX })
+			.attr('viewBox', function (d) { return d.viewbox })
+			.append('svg:path')
+			.attr('d', function (d) { return d.path })
+			.attr('fill', function (d, i) { return color(i) });
 
 	}
 
@@ -319,8 +312,17 @@ class Map extends React.Component {
 
 		// setInterval(() => this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000)), 2000)
 
-		this.trackUser({ id: 123, location: [{ "x": 50, "y": 100 }, { "x": 150, "y": 150 }, { "x": 280, "y": 300 }, { "x": 10, "y": 10 }], name: 'Kishan' })
-		setTimeout(() => this.trackUser({ id: 123, location: [{ "x": 50, "y": 100 }, { "x": 150, "y": 150 }, { "x": 280, "y": 300 }, { "x": 10, "y": 10 }, { "x": 250, "y": 112 }], name: 'Kishan' }), 2000)
+		// let location = [{ "x": 50, "y": 100 }, { "x": 150, "y": 150 }, { "x": 280, "y": 300 }, { "x": 10, "y": 10 }];
+		let location = [{ "x": 50, "y": 100 }];
+		// let location1 = [{ "x": 250, "y": 112 }];
+		this.trackUser({ id: 123, location: location, name: 'Kishan' })
+		// this.trackUser({ id: 321, location: location1, name: 'Shubham' })
+		setInterval(() => {
+			location.push({ "x": Math.random() * this.SVG_WIDTH, "y": Math.random() * this.SVG_HEIGHT })
+			// location1.push({ "x": Math.random() * this.SVG_WIDTH, "y": Math.random() * this.SVG_HEIGHT })
+			this.trackUser({ id: 123, location: location, name: 'Kishan' })
+			// this.trackUser({ id: 321, location: location1, name: 'Shubham' })
+		}, 5000)
 	}
 
 	init_map(dataPoints) {
@@ -387,9 +389,9 @@ class Map extends React.Component {
 			.on("mouseover", () => this.tooltip.style("visibility", "visible").text(userData.name || userData.id))
 			.on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 30) + "px").style("left", (d3.event.pageX + 10) + "px"))
 			.on("mouseout", () => this.tooltip.style("visibility", "hidden"))
-			.attr("marker-mid", "url(#triangle)")
-			.attr('marker-start', "url(#circleStart)")
-			.attr('marker-end', "url(#circleEnd)");
+			.attr('marker-start', "url(#marker_square)")
+			.attr("marker-mid", "url(#marker_circle)")
+			.attr('marker-end', "url(#marker_arrow)");
 	}
 
 	trackUser(userData) {

@@ -1,6 +1,5 @@
 path {
 	stroke: black;
-	stroke-width: 2px;
 	stroke-linecap: round;
 	stroke-linejoin: round;
 	fill-opacity: 0.9;
@@ -8,20 +7,21 @@ path {
 
 path:hover {
 	stroke: white;
-	stroke-width: 2px;
+	stroke-width: 1px;
 	fill: steelblue;
 	cursor: pointer;
 }
 
 .person:hover{
 	stroke: steelblue;
-	stroke-width: 2px;
+	stroke-width: 1px;
 	fill: none;
 	cursor: pointer;
 }
 
 .person{
 	stroke: white;
+	stroke-width: 0.8px;
 	stroke-dasharray: 5;
 	stroke-dashoffset: 10;	
 	animation: dash 5s linear 1s forwards;
@@ -34,30 +34,6 @@ path:hover {
 	to {
 		stroke-dashoffset: 0;
 	}
-}
-
-#circleEnd {
-	stroke-dasharray: 5;
-	stroke-dashoffset: 10;	
-	animation: circleAnimation 1s linear infinite;
-}
-
-@keyframes circleAnimation {
-	from{
-		stroke-dashoffset: 10;
-		stroke-width: 3px;
-	}
-	to {
-		stroke-dashoffset: 0;
-		stroke-width: 5px;
-	}
-}
-
-#triangle, #circleStart {
-	stroke-dasharray: 100;
-	stroke-dashoffset: 100;
-	stroke-width: 0;
-	animation: none;
 }
 
 .Canvas:hover{
