@@ -28,6 +28,10 @@
         ],
         "no-console": [
             "off"
+        ],
+        "comma-dangle": [
+            "error",
+            "never"
         ]
     }
 }

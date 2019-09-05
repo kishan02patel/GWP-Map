@@ -73,6 +73,9 @@ class Map extends React.Component {
 
 	componentWillReceiveProps(nextProps) {
 		this.trackUser(nextProps.trackuserdata);
+		if (nextProps.adduser) {
+			this.trackUser(nextProps.adduser);
+		}
 	}
 
 	componentDidMount() {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Map from './Map';
 import './App.css';
+import io from 'socket.io-client';
 
 function generateRandomLocation(startDate, endDate, height = 376, width = 575) {
   let diff = endDate.getTime() - startDate.getTime();
@@ -22,6 +23,16 @@ function filterLocationByTime(userData, startTime, endTime) {
 }
 
 function App() {
+  const [newUser, setNewUser] = useState();
+
+  useEffect(() => {
+    const socket = io('http://localhost:3000/');
+    socket.on('adduser', (data) => {
+      setNewUser(data)
+    });
+  }, [])
+
+
   const [location, setLocation] = useState([
     generateRandomLocation(new Date(2019, 9, 1), new Date(2019, 9, 3)),
     generateRandomLocation(new Date(2019, 9, 2), new Date(2019, 9, 3)),
@@ -57,14 +68,9 @@ function App() {
 
   return (
     <div className="App">
-      <Map trackuserdata={{ id: 1111, location: location, name: 'new user' }} />
+      <Map trackuserdata={{ id: 1111, location: location, name: 'new user' }} adduser={newUser} />
     </div>
   );
 }
 
 export default App;
-
-// new user to track - {id, name, locations}
-// new position for a current user - {id, name, locations}
-// visualization
-// users to track
