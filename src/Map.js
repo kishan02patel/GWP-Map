@@ -11,7 +11,9 @@ class Map extends React.Component {
 		this.MARKER_RADIUS = this.props.markerRadius || 5;
 		this.MARKER_COLOR = this.props.markerColor || '#FFF';
 		this.state = {
+			// This is for heatmap (Array of objects{id, x, y, timeStamp}).
 			locationData: [],
+			// This is for tracking user (Object of object{id, name, location(array of points), trackingObj, hidden})
 			userTrackingData: {},
 		}
 	}
@@ -28,6 +30,8 @@ class Map extends React.Component {
 			.attr("class", "tooltip")
 
 		this.lineFunction = d3.line()
+			.curve(d3.curveCatmullRomOpen)
+			// .curve(d3.curveCardinalOpen, 0.75)
 			.x(function (d) { return d.x; })
 			.y(function (d) { return d.y; })
 
@@ -45,11 +49,11 @@ class Map extends React.Component {
 		let defs = this.svg.append('svg:defs');
 		let margin = { top: 50, right: 20, bottom: 30, left: 40 };
 
-		let paths = this.svg.append('svg:g')
+		this.svg.append('svg:g')
 			.attr('id', 'markers')
 			.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-		let marker = defs.selectAll('marker')
+		defs.selectAll('marker')
 			.data(data)
 			.enter()
 			.append('svg:marker')
@@ -65,7 +69,10 @@ class Map extends React.Component {
 			.append('svg:path')
 			.attr('d', function (d) { return d.path })
 			.attr('fill', function (d, i) { return color(i) });
+	}
 
+	componentWillReceiveProps(nextProps) {
+		this.trackUser(nextProps.trackuserdata);
 	}
 
 	componentDidMount() {
@@ -310,19 +317,7 @@ class Map extends React.Component {
 		// Create a new layer for user tracking
 		this.userTrackingLayer = this.svg.append('g');
 
-		// setInterval(() => this.setState({ locationData: this.props.locationData || this.randomData() }, () => this.heatmap(this.state.locationData, Date.now(), Date.now() + 3600000)), 2000)
-
-		// let location = [{ "x": 50, "y": 100 }, { "x": 150, "y": 150 }, { "x": 280, "y": 300 }, { "x": 10, "y": 10 }];
-		let location = [{ "x": 50, "y": 100 }];
-		// let location1 = [{ "x": 250, "y": 112 }];
-		this.trackUser({ id: 123, location: location, name: 'Kishan' })
-		// this.trackUser({ id: 321, location: location1, name: 'Shubham' })
-		setInterval(() => {
-			location.push({ "x": Math.random() * this.SVG_WIDTH, "y": Math.random() * this.SVG_HEIGHT })
-			// location1.push({ "x": Math.random() * this.SVG_WIDTH, "y": Math.random() * this.SVG_HEIGHT })
-			this.trackUser({ id: 123, location: location, name: 'Kishan' })
-			// this.trackUser({ id: 321, location: location1, name: 'Shubham' })
-		}, 5000)
+		this.trackUser(this.props.trackuserdata);
 	}
 
 	init_map(dataPoints) {
@@ -334,7 +329,6 @@ class Map extends React.Component {
 		let lineFunction = d3.line()
 			.x(function (d) { return d.x; })
 			.y(function (d) { return d.y; })
-		// .interpolate("linear");
 
 		for (var key in dataPoints) {
 			let data = dataPoints[key];
@@ -354,13 +348,24 @@ class Map extends React.Component {
 		for (let i = 1; i <= numberOfData; i++) {
 			let newData = {
 				id: i,
-				x: Math.floor(Math.random() * this.SVG_WIDTH + 1),
-				y: Math.floor(Math.random() * this.SVG_HEIGHT + 1),
-				timestamp: new Date(Date.now() + Math.floor(Math.random() * 24 * 60 * 60 * 1000))
+				// x: Math.floor(Math.random() * this.SVG_WIDTH + 1),
+				// y: Math.floor(Math.random() * this.SVG_HEIGHT + 1),
+				// timestamp: new Date(Date.now() + Math.floor(Math.random() * 24 * 60 * 60 * 1000))
+				...this.generateRandomLocation(Date.now(), new Date(Date.now() + 24 * 60 * 60 * 1000))
 			}
 			locationData.push(newData);
 		}
 		return locationData;
+	}
+
+	generateRandomLocation(startDate, endDate, height = this.SVG_HEIGHT, width = this.SVG_WIDTH) {
+		let diff = endDate.getTime() - startDate.getTime();
+		let new_diff = diff * Math.random();
+		return {
+			x: Math.floor(Math.random() * width),
+			y: Math.floor(Math.random() * height),
+			timestamp: new Date(startDate.getTime() + new_diff)
+		}
 	}
 
 	heatmap(locationData, startTime, endTime) {

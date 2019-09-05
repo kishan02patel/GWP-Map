@@ -24,7 +24,7 @@ path:hover {
 	stroke-width: 0.8px;
 	stroke-dasharray: 5;
 	stroke-dashoffset: 10;	
-	animation: dash 5s linear 1s forwards;
+	animation: dash 40s linear 1s infinite;
 }
 
 @keyframes dash {
