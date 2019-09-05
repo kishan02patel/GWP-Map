@@ -8,7 +8,7 @@
     "start-front": "cd client && npm start",
     "start-end": "nodemon server.js",
     "start": "node server.js",
-    "heroku-postbuild": "cd client && npm install && npm build"
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "repository": {
     "type": "git",
