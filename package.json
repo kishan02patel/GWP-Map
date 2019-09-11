@@ -22,7 +22,8 @@
   "homepage": "https://github.com/kishan02patel/GWP-Map#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.2.0",
+    "xss-filters": "^1.2.7"
   },
   "devDependencies": {
     "eslint": "^6.3.0",

@@ -1,6 +1,7 @@
 const express = require('express');
 const socket = require('socket.io');
 const path = require('path');
+const xssFilters = require('xss-filters');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,15 +10,33 @@ let io = null;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 
-app.post('/api/adduser', (req, res) => {
+app.post('/api/tracking/adduser', (req, res) => {
     const newUser = {
-        id: req.body.id,
-        name: req.body.name,
-        location: req.body.location
+        id: xssFilters.inHTMLData(req.body.id),
+        name: xssFilters.inHTMLData(req.body.name),
+        location: xssFilters.inHTMLData(req.body.location)
     };
 
     io.emit('adduser', newUser);
     res.send(newUser);
+});
+
+app.post('/api/tracking/addusers', (req, res) => {
+    const users = [];
+    req.body.data.forEach((user) => {
+        const newUser = {
+            id: xssFilters.inHTMLData(user.id),
+            name: xssFilters.inHTMLData(user.name),
+            location: xssFilters.inHTMLData(user.location)
+        };
+
+        if (newUser.id && newUser.name && newUser.location.length > 0) {
+            users.push(newUser);
+        }
+    });
+
+    io.emit('addusers', users);
+    res.send(users);
 });
 
 app.get('*', (req, res) => {
