@@ -4,12 +4,10 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+let io = null;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
-
-const server = app.listen(PORT, () => console.log('Server started at port: ', PORT));
-const io = socket(server);
 
 app.post('/api/adduser', (req, res) => {
     const newUser = {
@@ -24,4 +22,9 @@ app.post('/api/adduser', (req, res) => {
 
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'client/build/index.html'));
+});
+
+const server = app.listen(PORT, () => {
+    console.log('Server started at port: ', PORT);
+    io = socket(server);
 });
