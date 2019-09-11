@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Map from './Map';
 import './App.css';
 import io from 'socket.io-client';
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:3000';
 
 function generateRandomLocation(startDate, endDate, height = 376, width = 575) {
   let diff = endDate.getTime() - startDate.getTime();
@@ -26,7 +27,7 @@ function App() {
   const [newUser, setNewUser] = useState();
 
   useEffect(() => {
-    const socket = io('http://localhost:3000/');
+    const socket = io(SOCKET_URL);
     socket.on('adduser', (data) => {
       setNewUser(data)
     });
