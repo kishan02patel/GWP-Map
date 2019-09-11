@@ -27,7 +27,7 @@ app.post('/api/tracking/addusers', (req, res) => {
         const newUser = {
             id: xssFilters.inHTMLData(user.id),
             name: xssFilters.inHTMLData(user.name),
-            location: xssFilters.inHTMLData(user.location)
+            location: user.location
         };
 
         if (newUser.id && newUser.name && newUser.location.length > 0) {
