@@ -14,7 +14,7 @@ app.post('/api/tracking/adduser', (req, res) => {
     const newUser = {
         id: xssFilters.inHTMLData(req.body.id),
         name: xssFilters.inHTMLData(req.body.name),
-        location: xssFilters.inHTMLData(req.body.location)
+        location: req.body.location
     };
 
     io.emit('adduser', newUser);
