@@ -72,10 +72,7 @@ class Map extends React.Component {
 	}
 
 	componentWillReceiveProps(nextProps) {
-		this.trackUser(nextProps.trackuserdata);
-		if (nextProps.adduser) {
-			this.trackUser(nextProps.adduser);
-		}
+		nextProps.trackuserdata.forEach(user => this.trackUser(user))
 	}
 
 	componentDidMount() {
@@ -403,6 +400,9 @@ class Map extends React.Component {
 	}
 
 	trackUser(userData) {
+
+		if (!userData || Object.keys(userData).length === 0)
+			return;
 		// If the user does not exists then add it to map
 		if (this.state.userTrackingData[userData.id] === undefined) {
 			let newUser = {
