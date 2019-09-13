@@ -2,6 +2,8 @@ const express = require('express');
 const socket = require('socket.io');
 const path = require('path');
 const xssFilters = require('xss-filters');
+const swaggerUI = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,6 +11,7 @@ let io = null;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
+app.use('/swagger', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 app.post('/api/tracking/adduser', (req, res) => {
     const newUser = {
