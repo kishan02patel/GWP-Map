@@ -21,6 +21,17 @@ app.post('/api/tracking/adduser', (req, res) => {
     res.send(newUser);
 });
 
+app.post('/api/tracking/adduserlocation', (req, res) => {
+    const user = {
+        id: xssFilters.inHTMLData(req.body.id),
+        name: xssFilters.inHTMLData(req.body.name),
+        location: req.body.location
+    };
+
+    io.emit('adduserlocation', user);
+    res.send(user);
+});
+
 app.post('/api/tracking/addusers', (req, res) => {
     const users = [];
     req.body.data.forEach((user) => {
