@@ -25,16 +25,28 @@ const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:3000';
 
 function App() {
   const [newUsers, setNewUsers] = useState([]);
+  const socket = io(SOCKET_URL);
 
-  useEffect((newUsers) => {
-    const socket = io(SOCKET_URL);
+  useEffect(() => {
     socket.on('adduser', (user) => {
       setNewUsers(newUsers => [...newUsers, user])
     });
     socket.on('addusers', (users) => {
       setNewUsers(users)
     });
-  }, [])
+    socket.on('adduserlocation', (userData) => {
+      setNewUsers(newUsers => {
+        const newArray = Array.from(newUsers);
+        newArray.forEach(user => {
+          if (user.id === userData.id) {
+            user.location.push(userData.location);
+          }
+        })
+
+        return [...newArray]
+      });
+    });
+  }, []);
 
   // const [location, setLocation] = useState([
   //   generateRandomLocation(new Date(2019, 9, 1), new Date(2019, 9, 3)),
