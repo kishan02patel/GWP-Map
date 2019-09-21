@@ -15,10 +15,10 @@
 		"http"
 	],
 	"consumes": [
-		"appplication/json"
+		"application/json"
 	],
 	"produces": [
-		"appplication/json"
+		"application/json"
 	],
 	"paths": {
 		"/api/tracking/adduser": {
@@ -38,7 +38,7 @@
 					}
 				],
 				"produces": [
-					"appplication/json"
+					"application/json"
 				],
 				"responses": {
 					"200": {
@@ -70,7 +70,7 @@
 					}
 				],
 				"produces": [
-					"appplication/json"
+					"application/json"
 				],
 				"responses": {
 					"200": {
@@ -102,7 +102,7 @@
 					}
 				],
 				"produces": [
-					"appplication/json"
+					"application/json"
 				],
 				"responses": {
 					"200": {
