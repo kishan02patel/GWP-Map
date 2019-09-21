@@ -97,7 +97,7 @@
 						"name": "User",
 						"description": "Location that we want to add to a user.",
 						"schema": {
-							"$ref": "#/definitions/user"
+							"$ref": "#/definitions/userlocation"
 						}
 					}
 				],
@@ -108,7 +108,7 @@
 					"200": {
 						"description": "Success",
 						"schema": {
-							"$ref": "#/definitions/user"
+							"$ref": "#/definitions/userlocation"
 						}
 					},
 					"400": {
@@ -154,6 +154,18 @@
 			"type": "array",
 			"items": {
 				"$ref": "#/definitions/user"
+			}
+		},
+		"userlocation": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "number"
+				},
+				"name": {
+					"type": "string"
+				},
+				"location": {"$ref": "#/definitions/location"}
 			}
 		}
 	}
