@@ -15,10 +15,10 @@
 		"http"
 	],
 	"consumes": [
-		"appplication/json"
+		"application/json"
 	],
 	"produces": [
-		"appplication/json"
+		"application/json"
 	],
 	"paths": {
 		"/api/tracking/adduser": {
@@ -38,7 +38,7 @@
 					}
 				],
 				"produces": [
-					"appplication/json"
+					"application/json"
 				],
 				"responses": {
 					"200": {
@@ -70,7 +70,7 @@
 					}
 				],
 				"produces": [
-					"appplication/json"
+					"application/json"
 				],
 				"responses": {
 					"200": {
@@ -97,18 +97,18 @@
 						"name": "User",
 						"description": "Location that we want to add to a user.",
 						"schema": {
-							"$ref": "#/definitions/user"
+							"$ref": "#/definitions/userlocation"
 						}
 					}
 				],
 				"produces": [
-					"appplication/json"
+					"application/json"
 				],
 				"responses": {
 					"200": {
 						"description": "Success",
 						"schema": {
-							"$ref": "#/definitions/user"
+							"$ref": "#/definitions/userlocation"
 						}
 					},
 					"400": {
@@ -154,6 +154,18 @@
 			"type": "array",
 			"items": {
 				"$ref": "#/definitions/user"
+			}
+		},
+		"userlocation": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "number"
+				},
+				"name": {
+					"type": "string"
+				},
+				"location": {"$ref": "#/definitions/location"}
 			}
 		}
 	}
