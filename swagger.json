@@ -12,7 +12,8 @@
 		}
 	],
 	"schemes": [
-		"http"
+		"http",
+		"https"
 	],
 	"consumes": [
 		"application/json"
@@ -131,7 +132,12 @@
 				"timestamp": {
 					"type": "string"
 				}
-			}
+			},
+			"required": [
+				"x",
+				"y",
+				"timestamp"
+			]
 		},
 		"user": {
 			"type": "object",
@@ -148,7 +154,12 @@
 						"$ref": "#/definitions/location"
 					}
 				}
-			}
+			},
+			"required": [
+				"id",
+				"name",
+				"location"
+			]
 		},
 		"users": {
 			"type": "array",
@@ -165,8 +176,15 @@
 				"name": {
 					"type": "string"
 				},
-				"location": {"$ref": "#/definitions/location"}
-			}
+				"location": {
+					"$ref": "#/definitions/location"
+				}
+			},
+			"required": [
+				"id",
+				"name",
+				"location"
+			]
 		}
 	}
 }

@@ -3,6 +3,7 @@ const socket = require('socket.io');
 const path = require('path');
 const xssFilters = require('xss-filters');
 const swaggerUI = require('swagger-ui-express');
+const cors = require('cors');
 const swaggerDocument = require('./swagger.json');
 
 const app = express();
@@ -10,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 let io = null;
 
 app.use(express.json());
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use('/swagger', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
