@@ -1,5 +1,5 @@
 path {
-	stroke: black;
+	/*stroke: black;*/
 	stroke-linecap: round;
 	stroke-linejoin: round;
 	fill-opacity: 0.9;
@@ -20,7 +20,7 @@ path:hover {
 }
 
 .person{
-	stroke: white;
+	/*stroke: white;*/
 	stroke-width: 0.8px;
 	stroke-dasharray: 5;
 	stroke-dashoffset: 10;	

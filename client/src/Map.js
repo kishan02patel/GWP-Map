@@ -1,6 +1,7 @@
 import React from 'react';
 import * as d3 from 'd3';
 import './Map.css';
+import {dataSchema, visSchema, recommend, bind, createSymbolSvg} from './visualmodel.js';
 
 class Map extends React.Component {
 	constructor(props) {
@@ -16,6 +17,14 @@ class Map extends React.Component {
 			// This is for tracking user (Object of object{id, name, location(array of points), trackingObj, hidden})
 			userTrackingData: {},
 		}
+		// Recommend a notation taking into account the data fields present (dataSchema)
+		// and the supported visualisation features (visSchema).
+		this.notation = recommend(
+			dataSchema,
+			visSchema
+		);
+		// Log the notation ('bind_' properties represent visual properties that vary with data).
+		console.log("notation:", this.notation);
 	}
 
 	scaleMap(x, y, transform = 'top left') {
@@ -34,41 +43,6 @@ class Map extends React.Component {
 			// .curve(d3.curveCardinalOpen, 0.75)
 			.x(function (d) { return d.x; })
 			.y(function (d) { return d.y; })
-
-		this.createMapMarkers();
-	}
-
-	createMapMarkers() {
-		let data = [
-			{ id: 0, name: 'circle', path: 'M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0', viewbox: '-6 -6 12 12', refX: 0, refY: 6, height: 8, width: 8 },
-			{ id: 1, name: 'square', path: 'M 0,0 m -5,-5 L 5,-5 L 5,5 L -5,5 Z', viewbox: '-5 -5 10 10', refX: 0, refY: 6, height: 8, width: 8 },
-			{ id: 2, name: 'arrow', path: 'M2, 2 L10, 6 L2, 10 L6, 6 L2, 2', viewbox: '0 0 12 12', refX: 6, refY: 0, height: 12, width: 12 }
-		];
-
-		let color = d3.scaleOrdinal(d3.schemeCategory10);
-		let defs = this.svg.append('svg:defs');
-		let margin = { top: 50, right: 20, bottom: 30, left: 40 };
-
-		this.svg.append('svg:g')
-			.attr('id', 'markers')
-			.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
-		defs.selectAll('marker')
-			.data(data)
-			.enter()
-			.append('svg:marker')
-			.attr('id', function (d) { return 'marker_' + d.name })
-			.attr('markerHeight', function (d) { return d.height })
-			.attr('markerWidth', function (d) { return d.width })
-			.attr('markerUnits', 'strokeWidth')
-			.attr('orient', 'auto')
-			.attr('class', function (d) { return d.name })
-			.attr('refX', function (d) { return d.refX })
-			.attr('refY', function (d) { return d.refX })
-			.attr('viewBox', function (d) { return d.viewbox })
-			.append('svg:path')
-			.attr('d', function (d) { return d.path })
-			.attr('fill', function (d, i) { return color(i) });
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -384,25 +358,75 @@ class Map extends React.Component {
 			.attr('cy', location.y)
 			.style('fill', this.MARKER_COLOR)
 	}
+		
+	addNewUserToTrack(userData, visResult) {
+		// Define custom markers for each user
+		let data = [
+			{ id: 0, name: 'start', height: 8, width: 8, size: visResult.marker_start.size, color: visResult.marker_start.color, shape: visResult.marker_start.shape, refX: 50, refY: 50, viewbox: "0 0 100 100" },
+			{ id: 1, name: 'end', height: visResult.marker_end.size, width: visResult.marker_end.size, color: visResult.marker_end.color, shape: visResult.marker_end.shape, refX: 50, refY: 50, viewbox: "0 0 100 100" },
+			{ id: 2, name: 'mid', height: visResult.marker_mid.size, width: visResult.marker_mid.size, color: visResult.marker_mid.color, shape: visResult.marker_mid.shape, refX: 50, refY: 50, viewbox: "0 0 100 100" }
+		];
 
-	addNewUserToTrack(userData) {
+		let defs = this.svg.append('svg:defs');
+
+		defs.selectAll('marker')
+			.data(data)
+			.enter()
+			.append('svg:marker')
+			.attr('id', function (d) { return 'marker_' + d.name + "_" + userData.id })
+			.attr('markerHeight', function (d) { return d.height })
+			.attr('markerWidth', function (d) { return d.width })
+			.attr('refX', function (d) { return d.refX })
+			.attr('refY', function (d) { return d.refX })
+			.attr('viewBox', function (d) { return d.viewbox })
+			.attr('orient', 'auto')
+			.append(function(d) {
+				// Generate custom SVG marker symbol with recommended color and shape
+				return createSymbolSvg(d.color, d.shape);
+			});
+
 		return this.userTrackingLayer.append("path")
-			.datum(userData.location)
+			.datum(visResult.path)
 			.attr("d", this.lineFunction)
 			.attr("fill", 'none')
+			.attr("stroke", visResult.line_style.color) // Stroke color will be chosen based on person id
 			.attr("class", 'person')
 			.on("mouseover", () => this.tooltip.style("visibility", "visible").text(userData.name || userData.id))
 			.on("mousemove", () => this.tooltip.style("top", (d3.event.pageY - 30) + "px").style("left", (d3.event.pageX + 10) + "px"))
 			.on("mouseout", () => this.tooltip.style("visibility", "hidden"))
-			.attr('marker-start', "url(#marker_square)")
-			.attr("marker-mid", "url(#marker_circle)")
-			.attr('marker-end', "url(#marker_arrow)");
+			.attr('marker-start', "url(#marker_start_" + userData.id + ")")
+			.attr("marker-mid", "url(#marker_mid_" + userData.id + ")")
+			.attr('marker-end', "url(#marker_end_" + userData.id + ")")
 	}
 
 	trackUser(userData) {
 
 		if (!userData || Object.keys(userData).length === 0)
 			return;
+
+		// Preprocess data
+		let personData = {
+			// Convert id to a bin. This is needed as there are
+			// a finite number of colours/textures available and
+			// potentially infinite ids.
+			"idbin": "bin" + (1 + userData.id % 3),
+			"person_start": {
+				// convert time to number (milliseconds since epoch)
+				"time": new Date("2019-02-01T00:00:00Z").getTime()
+			},
+			"person_end": {
+				// TODO: Extract start and end timestamps from userData.location
+				"time": new Date("2019-10-01T00:00:00Z").getTime()
+			},
+			"person_path": userData.location
+		};
+
+		// Bind notation to data (will substitute 'bind_' properties in the notation with actual data values)
+		let visResult = bind(this.notation, personData);
+
+		// Log the recommended visualisation (after binding to data, all visual properties will be constant)
+		console.log("visResult:", visResult);
+
 		// If the user does not exists then add it to map
 		if (this.state.userTrackingData[userData.id] === undefined) {
 			let newUser = {
@@ -412,7 +436,7 @@ class Map extends React.Component {
 				hidden: false
 			}
 
-			newUser.trackingObj = this.addNewUserToTrack(newUser);
+			newUser.trackingObj = this.addNewUserToTrack(newUser, visResult);
 
 			let newStateObj = Object.assign({}, this.state.userTrackingData);
 			newStateObj[userData.id] = newUser;
@@ -420,7 +444,8 @@ class Map extends React.Component {
 			this.setState({ userTrackingData: Object.assign({}, newStateObj) });
 		} else {
 			// If user exists then add new locations.
-			this.state.userTrackingData[userData.id].trackingObj.datum(userData.location).transition().duration(1000).attr("d", this.lineFunction)
+			// Note: visResult.path may be different to userData.location. E.g. depending on the bindings specified by the notation, it may scale or swap the x and y axes.
+			this.state.userTrackingData[userData.id].trackingObj.datum(visResult.path).transition().duration(1000).attr("d", this.lineFunction)
 
 			let newStateObj = Object.assign({}, this.state.userTrackingData);
 			newStateObj[userData.id].location = userData.location;
